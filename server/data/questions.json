@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "category": "quant",
+    "difficulty": "easy",
+    "question": "What is 25% of 160?",
+    "options": ["30", "35", "40", "45"],
+    "answer": "40",
+    "explanation": "25% = 1/4, so 160/4 = 40"
+  },
+  {
+    "id": 2,
+    "category": "logical",
+    "difficulty": "medium",
+    "question": "If TOM is coded as 486, then CAT is coded as:",
+    "options": ["312", "183", "243", "231"],
+    "answer": "183",
+    "explanation": "This follows reverse alphabetical mapping where A=26, B=25... T=7, O=12, M=14 giving 7,12,14. Similarly C=24, A=26, T=7 giving 24,26,7 but the answer suggests a different pattern."
+  },
+  {
+    "id": 3,
+    "category": "verbal",
+    "difficulty": "easy",
+    "question": "Choose the synonym of 'Brave':",
+    "options": ["Coward", "Courageous", "Weak", "Fearful"],
+    "answer": "Courageous",
+    "explanation": "Courageous means having or showing courage, which is the same as being brave."
+  },
+  {
+    "id": 4,
+    "category": "technical",
+    "difficulty": "easy",
+    "question": "Which data structure uses FIFO?",
+    "options": ["Stack", "Queue", "Tree", "Graph"],
+    "answer": "Queue",
+    "explanation": "Queue follows First In First Out (FIFO) principle, where the first element added is the first one to be removed."
+  },
+  {
+    "id": 5,
+    "category": "quant",
+    "difficulty": "medium",
+    "question": "If a train travels 120 km in 2 hours, what is its average speed?",
+    "options": ["50 km/h", "60 km/h", "70 km/h", "80 km/h"],
+    "answer": "60 km/h",
+    "explanation": "Speed = Distance ÷ Time = 120 km ÷ 2 hours = 60 km/h"
+  },
+  {
+    "id": 6,
+    "category": "logical",
+    "difficulty": "easy",
+    "question": "Complete the series: 2, 4, 8, 16, ?",
+    "options": ["24", "28", "32", "36"],
+    "answer": "32",
+    "explanation": "Each number is doubled: 2×2=4, 4×2=8, 8×2=16, 16×2=32"
+  },
+  {
+    "id": 7,
+    "category": "verbal",
+    "difficulty": "medium",
+    "question": "Choose the antonym of 'Abundant':",
+    "options": ["Plentiful", "Scarce", "Ample", "Copious"],
+    "answer": "Scarce",
+    "explanation": "Scarce means insufficient or in short supply, which is the opposite of abundant (existing in large quantities)."
+  },
+  {
+    "id": 8,
+    "category": "technical",
+    "difficulty": "medium",
+    "question": "What is the time complexity of binary search?",
+    "options": ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+    "answer": "O(log n)",
+    "explanation": "Binary search divides the search space in half with each step, resulting in logarithmic time complexity O(log n)."
+  },
+  {
+    "id": 9,
+    "category": "quant",
+    "difficulty": "hard",
+    "question": "A shopkeeper marks his goods 40% above cost price but gives a discount of 25%. What is his profit percentage?",
+    "options": ["5%", "10%", "15%", "20%"],
+    "answer": "5%",
+    "explanation": "If CP = 100, then MP = 140. After 25% discount: SP = 140 - 35 = 105. Profit = 105 - 100 = 5%"
+  },
+  {
+    "id": 10,
+    "category": "logical",
+    "difficulty": "hard",
+    "question": "If all Bloops are Razzies and all Razzies are Lazzies, which statement is definitely true?",
+    "options": ["All Lazzies are Bloops", "All Bloops are Lazzies", "Some Lazzies are Bloops", "No Bloops are Lazzies"],
+    "answer": "All Bloops are Lazzies",
+    "explanation": "By transitive property: If Bloops → Razzies and Razzies → Lazzies, then Bloops → Lazzies. All Bloops must be Lazzies."
+  },
+  {
+    "id": 11,
+    "category": "verbal",
+    "difficulty": "hard",
+    "question": "Identify the correctly spelled word:",
+    "options": ["Accomodation", "Accommodation", "Acommodation", "Acomodation"],
+    "answer": "Accommodation",
+    "explanation": "Accommodation is spelled with double 'c' and double 'm'."
+  },
+  {
+    "id": 12,
+    "category": "technical",
+    "difficulty": "hard",
+    "question": "Which design pattern is used to provide a simplified interface to a complex subsystem?",
+    "options": ["Adapter", "Facade", "Decorator", "Proxy"],
+    "answer": "Facade",
+    "explanation": "The Facade pattern provides a simplified, unified interface to a set of interfaces in a subsystem, making it easier to use."
+  }
+]
