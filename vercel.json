@@ -2,8 +2,11 @@
   "version": 2,
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "dist/public",
-  "framework": "vite",
+  "framework": null,
   "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
