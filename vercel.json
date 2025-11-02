@@ -7,7 +7,7 @@
     }
   ],
   "buildCommand": "npm install && npm run build:client",
-  "outputDirectory": "dist",
+  "outputDirectory": "dist/public",
   "env": {
     "VITE_BACKEND_URL": "https://ai-aptitude-backend.onrender.com"
   },
