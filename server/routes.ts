@@ -5,20 +5,18 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import type { Question } from "@shared/schema";
 
-// ✅ Ensure consistent directory reference
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, "..");
 
 export async function registerRoutes(app: Express): Promise<Server> {
   try {
-    // ✅ Use process.cwd() so path works in both dev & production
-    const questionsPath = join(process.cwd(), "src", "data", "questions.json");
+    // ✅ Corrected: use only one 'data' folder under project root
+    const questionsPath = join(process.cwd(), "data", "questions.json");
 
     console.log("📁 Loading questions from:", questionsPath);
     const fileData = readFileSync(questionsPath, "utf-8");
     const allQuestions: Question[] = JSON.parse(fileData);
 
-    // ✅ Helper to shuffle questions
     function shuffleArray<T>(array: T[]): T[] {
       const shuffled = [...array];
       for (let i = shuffled.length - 1; i > 0; i--) {
@@ -28,7 +26,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return shuffled;
     }
 
-    // ✅ API route to get questions by category
     app.get("/api/questions/:category", (req, res) => {
       const { category } = req.params;
 
@@ -48,7 +45,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(shuffledQuestions);
     });
 
-    // ✅ Health check route (for Render debugging)
     app.get("/api/health", (_req, res) => {
       res.json({ status: "ok", message: "Backend is running on Render 🚀" });
     });
