@@ -9,28 +9,49 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    react()
-    // removed replit-specific dev plugins to keep build portable on Render
+    react() // ✅ React plugin for JSX + Fast Refresh
   ],
+
   resolve: {
     alias: {
-      // adjust aliases to project layout
       "@": path.resolve(__dirname, "client", "src"),
       "@shared": path.resolve(__dirname, "shared"),
       "@assets": path.resolve(__dirname, "attached_assets"),
     },
   },
-  // client code lives inside client/
+
+  // ✅ The client root folder (where index.html and src/ live)
   root: path.resolve(__dirname, "client"),
+
   build: {
-    // write output to root/dist/public
+    // ✅ Output built files where Express can find them
     outDir: path.resolve(__dirname, "dist", "public"),
     emptyOutDir: true,
+
+    // ✅ Ensure absolute paths work in deployment
+    assetsDir: "assets",
   },
+
+  // ✅ Local dev server setup
   server: {
+    port: 5173,
+    strictPort: true,
+    open: true,
+    host: "0.0.0.0",
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+    proxy: {
+      // ✅ Forward API requests to backend when running locally
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
+
+  // ✅ Ensure correct base path on Render (so assets load correctly)
+  base: "./",
 });
