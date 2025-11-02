@@ -4,7 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ✅ Fix __dirname for ESM build (Render-safe)
+// ✅ Fix __dirname for ESM (Render-safe)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,7 +17,7 @@ declare module "http" {
   }
 }
 
-// Middleware: Parse JSON and capture raw body
+// ✅ Middleware: Parse JSON and capture raw body
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -27,11 +27,11 @@ app.use(
 );
 app.use(express.urlencoded({ extended: false }));
 
-// Logging middleware for /api routes
+// ✅ Logging middleware for /api routes
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: Record<string, any> | undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -58,26 +58,27 @@ app.use((req, res, next) => {
   next();
 });
 
-// Async IIFE for setup
+// ✅ Async IIFE for setup
 (async () => {
   const server = await registerRoutes(app);
 
-  // Global error handler
+  // ✅ Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
     res.status(status).json({ message });
-    throw err;
+    console.error(err);
   });
 
-  // ✅ Serve frontend correctly depending on env
+  // ✅ Handle frontend based on environment
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // 👇 Pass __dirname so it works correctly in Render build
+    serveStatic(app, __dirname);
   }
 
-  // ✅ Always use Render's provided PORT (default 5000)
+  // ✅ Always use Render’s PORT (default 5000)
   const port = parseInt(process.env.PORT || "5000", 10);
   server.listen(
     {
