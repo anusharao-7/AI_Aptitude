@@ -2,19 +2,37 @@ import { z } from "zod";
 
 export const questionSchema = z.object({
   id: z.number(),
-  category: z.enum(["quant", "logical", "verbal", "technical"]),
-  difficulty: z.enum(["easy", "medium", "hard"]),
+  category: z.enum(["Quantitative", "Logical", "Verbal", "Technical"]),
+  topic: z.string(),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]),
   question: z.string(),
-  options: z.array(z.string()).length(4),
-  answer: z.string(),
+  choices: z.array(z.string()),
+  answerIndex: z.number(),
   explanation: z.string(),
+  time_limit_seconds: z.number(),
 });
 
 export type Question = z.infer<typeof questionSchema>;
 
-export const categoryDisplayNames: Record<string, string> = {
-  quant: "Quantitative Aptitude",
-  logical: "Logical Reasoning",
-  verbal: "Verbal Ability",
-  technical: "Technical",
-};
+export const answerSchema = z.object({
+  questionId: z.number(),
+  selectedIndex: z.number(),
+  timeSpent: z.number(),
+});
+
+export type Answer = z.infer<typeof answerSchema>;
+
+export const resultSchema = z.object({
+  score: z.number(),
+  totalQuestions: z.number(),
+  accuracy: z.number(),
+  totalTime: z.number(),
+  weakAreas: z.array(z.object({
+    topic: z.string(),
+    attempted: z.number(),
+    correct: z.number(),
+    accuracy: z.number(),
+  })),
+});
+
+export type Result = z.infer<typeof resultSchema>;
