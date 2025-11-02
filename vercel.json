@@ -2,17 +2,16 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/vite.config.ts",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "client/dist" }
+      "src": "client/package.json",
+      "use": "@vercel/static-build"
     }
   ],
-  "env": {
-    "VITE_BACKEND_URL": "https://ai-aptitude-backend.onrender.com"
-  },
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/dist",
   "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
