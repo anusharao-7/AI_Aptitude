@@ -1,9 +1,9 @@
-// server/index.ts
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { fileURLToPath } from "url";
 import path from "path";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +16,7 @@ declare module "http" {
   }
 }
 
+// Parse JSON + raw body
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -32,10 +33,9 @@ app.use((req, res, next) => {
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
-  // capture JSON responses for compact logs
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
-    // @ts-ignore: preserve original call signature
+    // @ts-ignore
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
@@ -46,9 +46,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-      if (logLine.length > 160) {
-        logLine = logLine.slice(0, 159) + "…";
-      }
+      if (logLine.length > 160) logLine = logLine.slice(0, 159) + "…";
       log(logLine);
     }
   });
@@ -57,10 +55,23 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // register API routes (expects registerRoutes to return an http.Server or similar)
+  // Register API routes
   const server = await registerRoutes(app);
 
-  // global error handler
+  // ✅ Serve questions.json safely (Render compatible)
+  const questionsPath = path.join(process.cwd(), "src", "data", "questions.json");
+  app.get("/api/questions", (req, res) => {
+    try {
+      const data = fs.readFileSync(questionsPath, "utf-8");
+      const questions = JSON.parse(data);
+      res.json(questions);
+    } catch (err) {
+      console.error("Error loading questions:", err);
+      res.status(500).json({ error: "Failed to load questions" });
+    }
+  });
+
+  // Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -68,21 +79,15 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Only setup dev middleware if running in development (local)
+  // ✅ Handle different environments
   if (app.get("env") === "development") {
-    // setupVite will mount Vite dev middleware and SSR transform
     await setupVite(app, server);
   } else {
-    // production: serve the static frontend build from dist/public
-    // note: at runtime compiled server will be in dist/, so __dirname will be dist/
-    // dist/public must exist (created by vite build)
+    // Production: serve built React app
     const builtPublic = path.resolve(__dirname, "public");
-    // serveStatic exported util (if you have one) or fallback to express.static
     try {
-      // prefer helper if available
       serveStatic(app);
     } catch (e) {
-      // fallback: ensure the folder exists and serve it
       app.use(express.static(builtPublic));
       app.get("*", (_req, res) => {
         res.sendFile(path.resolve(builtPublic, "index.html"));
@@ -90,7 +95,7 @@ app.use((req, res, next) => {
     }
   }
 
-  // server.listen uses process.env.PORT provided by Render
+  // ✅ Listen on Render’s provided port
   const port = parseInt(process.env.PORT || "5000", 10);
   server.listen(
     {
@@ -99,7 +104,7 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`✅ Server running on port ${port}`);
     }
   );
 })();
