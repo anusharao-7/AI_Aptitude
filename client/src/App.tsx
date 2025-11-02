@@ -1,31 +1,32 @@
-import { useState } from "react";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import Home from "@/pages/Home";
-import Quiz from "@/pages/Quiz";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Landing from "@/pages/landing";
+import PracticeSetup from "@/pages/practice-setup";
+import QuestionInterface from "@/pages/question-interface";
+import ResultsSummary from "@/pages/results-summary";
+import NotFound from "@/pages/not-found";
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={Landing} />
+      <Route path="/practice" component={PracticeSetup} />
+      <Route path="/practice/questions" component={QuestionInterface} />
+      <Route path="/practice/results" component={ResultsSummary} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const handleBackToHome = () => {
-    setSelectedCategory(null);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {selectedCategory ? (
-          <Quiz category={selectedCategory} onBackToHome={handleBackToHome} />
-        ) : (
-          <Home onCategorySelect={handleCategorySelect} />
-        )}
         <Toaster />
+        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );
