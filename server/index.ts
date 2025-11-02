@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, log } from "./vite";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
@@ -16,7 +16,7 @@ declare module "http" {
   }
 }
 
-// Parse JSON + raw body
+// ✅ Parse JSON + raw body
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -26,7 +26,7 @@ app.use(
 );
 app.use(express.urlencoded({ extended: false }));
 
-// Simple request logger for API routes
+// ✅ Simple request logger
 app.use((req, res, next) => {
   const start = Date.now();
   const reqPath = req.path;
@@ -55,10 +55,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register API routes
+  // ✅ Register API routes
   const server = await registerRoutes(app);
 
-  // ✅ Serve questions.json safely (Render compatible)
+  // ✅ Serve questions.json (or any local data)
   const questionsPath = path.join(process.cwd(), "src", "data", "questions.json");
   app.get("/api/questions", (req, res) => {
     try {
@@ -71,7 +71,7 @@ app.use((req, res, next) => {
     }
   });
 
-  // Global error handler
+  // ✅ Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -79,24 +79,21 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // ✅ Handle different environments
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  // ✅ Serve frontend UI (Vite build)
+  const builtPublic = path.join(__dirname, "public");
+  if (fs.existsSync(builtPublic)) {
+    app.use(express.static(builtPublic));
+
+    // send index.html for any route (client-side routing)
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(builtPublic, "index.html"));
+    });
   } else {
-    // Production: serve built React app
-    const builtPublic = path.resolve(__dirname, "public");
-    try {
-      serveStatic(app);
-    } catch (e) {
-      app.use(express.static(builtPublic));
-      app.get("*", (_req, res) => {
-        res.sendFile(path.resolve(builtPublic, "index.html"));
-      });
-    }
+    console.warn("⚠️ Frontend build not found! Run `npm run build` before deploying.");
   }
 
-  // ✅ Listen on Render’s provided port
-  const port = parseInt(process.env.PORT || "5000", 10);
+  // ✅ Listen on Render’s port
+  const port = parseInt(process.env.PORT || "10000", 10);
   server.listen(
     {
       port,
@@ -104,7 +101,7 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      log(`✅ Server running on port ${port}`);
+      log(`✅ Full app (UI + API) running on port ${port}`);
     }
   );
 })();
