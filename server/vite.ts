@@ -5,6 +5,11 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+import { fileURLToPath } from "url";
+
+// ✅ Fix for ESM __dirname (Render-safe)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const viteLogger = createLogger();
 
@@ -40,24 +45,23 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // ✅ Use Vite middlewares for development
   app.use(vite.middlewares);
+
+  // ✅ Serve index.html dynamically in dev mode
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "client",
-        "index.html",
-      );
+      const clientTemplate = path.resolve(__dirname, "../client/index.html");
 
-      // always reload the index.html file from disk incase it changes
+      // always reload index.html to apply updates in dev
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
       );
+
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -67,18 +71,19 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+// ✅ Used in Production (Render)
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(__dirname, "../client/dist");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+      `❌ Could not find build directory: ${distPath}. Please build the client first (npm run build).`
     );
   }
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
+  // ✅ Serve index.html for all routes (SPA behavior)
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
