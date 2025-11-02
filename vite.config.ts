@@ -18,11 +18,15 @@ export default defineConfig({
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(__dirname, "dist/public"), // build frontend into dist/public
     emptyOutDir: true,
   },
   server: {
     host: true,
     port: 5173,
+    fs: {
+      strict: true,
+      deny: ["**/.*"],
+    },
   },
 });
