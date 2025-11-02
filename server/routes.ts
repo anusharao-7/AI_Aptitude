@@ -1,74 +1,65 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Define the question type
-interface Question {
-  id: number;
-  category: string;
-  difficulty: string;
-  question: string;
-  options: string[];
-  answer: string;
-  explanation: string;
-}
+import { storage } from "./storage";
+import { answerSchema } from "@shared/schema";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Path to your questions JSON file
-  const questionsPath = join(__dirname, "data", "questions.json");
-
-  // Read and parse the JSON file
-  let allQuestions: Question[] = [];
-  try {
-    const fileData = readFileSync(questionsPath, "utf-8");
-    allQuestions = JSON.parse(fileData);
-  } catch (error) {
-    console.error("Error reading questions.json:", error);
-  }
-
-  // Shuffle array helper function
-  function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  app.get("/api/categories", async (_req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
     }
-    return shuffled;
-  }
-
-  // ✅ API route: Get questions by category
-  app.get("/api/questions/:category", (req, res) => {
-    const { category } = req.params;
-
-    if (!category) {
-      return res.status(400).json({ error: "Category parameter is required" });
-    }
-
-    // Filter questions by category
-    const categoryQuestions = allQuestions.filter(
-      (q) => q.category.toLowerCase() === category.toLowerCase()
-    );
-
-    if (categoryQuestions.length === 0) {
-      return res.status(404).json({ error: "No questions found for this category" });
-    }
-
-    // Shuffle before returning
-    const shuffledQuestions = shuffleArray(categoryQuestions);
-    res.json(shuffledQuestions);
   });
 
-  // ✅ Simple route to test if backend works
-  app.get("/", (_, res) => {
-    res.send("✅ API is running successfully!");
+  app.get("/api/topics", async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const topics = await storage.getTopics(category);
+      res.json(topics);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch topics" });
+    }
   });
 
-  // Create and return HTTP server
+  app.get("/api/questions", async (req, res) => {
+    try {
+      const filters = {
+        category: req.query.category as string | undefined,
+        topic: req.query.topic as string | undefined,
+        difficulty: req.query.difficulty as string | undefined,
+        count: req.query.count ? parseInt(req.query.count as string) : undefined,
+      };
+
+      const questions = await storage.getQuestions(filters);
+      res.json(questions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch questions" });
+    }
+  });
+
+  app.post("/api/submit", async (req, res) => {
+    try {
+      const answersSchema = z.array(answerSchema);
+      const questionIdsSchema = z.array(z.number());
+
+      const answers = answersSchema.parse(req.body.answers);
+      const questionIds = questionIdsSchema.parse(req.body.questionIds);
+
+      const result = await storage.calculateResult(answers, questionIds);
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid request data", details: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to calculate result" });
+      }
+    }
+  });
+
   const httpServer = createServer(app);
+
   return httpServer;
 }
