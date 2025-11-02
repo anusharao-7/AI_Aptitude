@@ -6,8 +6,11 @@
       "use": "@vercel/static-build"
     }
   ],
-  "buildCommand": "npm install && npm run build",
+  "buildCommand": "npm install && npm run build:client",
   "outputDirectory": "dist",
+  "env": {
+    "VITE_BACKEND_URL": "https://ai-aptitude-backend.onrender.com"
+  },
   "routes": [
     {
       "src": "/(.*)",
