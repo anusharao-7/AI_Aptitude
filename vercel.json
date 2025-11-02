@@ -3,9 +3,9 @@
   "env": {
     "VITE_BACKEND_URL": "https://ai-aptitude-backend.onrender.com"
   },
+  "framework": "vite",
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "dist",
-  "framework": "vite",
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
   ]
