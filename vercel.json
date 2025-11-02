@@ -9,11 +9,7 @@
   "framework": "vite",
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "dist",
-  "rootDirectory": "client",
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
