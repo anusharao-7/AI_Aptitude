@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "client/dist/public",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist/public",
   "framework": "vite",
-  "env": {
-    "VITE_BACKEND_URL": "https://ai-aptitude-backend.onrender.com"
-  },
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
   ]
